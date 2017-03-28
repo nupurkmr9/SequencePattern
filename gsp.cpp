@@ -72,6 +72,7 @@ public:
 
 vector<sequence> Data;
 vector<vector<sequence> > F;	
+itemset Allitems;
 int minSupport = 2;
 
 void readInput();
@@ -123,6 +124,9 @@ void readInput(){
 		if (i.notExists(n)){	
 			i.addItem(n);
 			//cout << n ;
+		}
+		if (Allitems.notExists(n)){
+			Allitems.addItem(n);
 		}
 
 	}
