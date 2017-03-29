@@ -114,16 +114,16 @@ vector<sequence> join(sequence,sequence);
 int main(int argc, char const *argv[]){
 	readInput();
 	output(Data);
-	int m = Data[7].subsequence(Data[1].itemsets);
-	cout << m;
-	cout << '\n';
-	// GSP();
+	//int m = Data[7].subsequence(Data[1].itemsets);
+	//cout << m;
+	//cout << '\n';
+	GSP();
 
-	// for (int k=0; k<F.size(); k++ ){
-	// 	cout << k;
-	// 	cout << '\n';
-	// 	output(F[k]);
-	// }
+	for (int k=0; k<F.size(); k++ ){
+		cout << k;
+		cout << '\n';
+		output(F[k]);
+	}
 }
 
 
@@ -198,7 +198,9 @@ void GSP(){
 	//////// k frequent sequence while loop //////////////
 	int k = 2;
 	while( !F[k-1].empty() ){
-
+		// cout << 'k';
+		// cout << '\n';
+		
 		//////////// generate candidate sequence of k length using F[k-1] ///////////// 
 		vector<sequence> C = generateCandidte(k);
 		vector<int> supportCount ( C.size(),0);
