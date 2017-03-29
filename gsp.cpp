@@ -108,7 +108,7 @@ void output(vector<sequence>);
 void GSP();
 vector<sequence> generateCandidte(int);
 vector<sequence> frequent1Seq();
-int pruned(sequence);
+int pruned(sequence,int);
 vector<sequence> join(sequence,sequence);
 
 int main(int argc, char const *argv[]){
@@ -200,7 +200,7 @@ void GSP(){
 	while( !F[k-1].empty() ){
 		// cout << 'k';
 		// cout << '\n';
-		
+
 		//////////// generate candidate sequence of k length using F[k-1] ///////////// 
 		vector<sequence> C = generateCandidte(k);
 		vector<int> supportCount ( C.size(),0);
@@ -245,7 +245,7 @@ vector<sequence> generateCandidte(int k){
 			vector<sequence> candidate = join(*ii,*tt);
 			if (candidate.size() > 0){
 				for ( vector<sequence>::iterator cc = candidate.begin() ; cc < candidate.end(); cc++ ){
-					if (!pruned(*cc)){
+					if (!pruned(*cc,k)){
 						candidates.push_back(*cc);
 					}
 				}
@@ -256,11 +256,46 @@ vector<sequence> generateCandidte(int k){
 }
 
 vector<sequence> join(sequence c1, sequence c2){
-//// to do ////////
+	// final 
+	// temp c11 = c1
+	//if first itemset has >1 element of c11 :
+	//		for each item in c11.itemset[0]:
+	//			c11 = remove item from c11.itemset[0]: 
+	//				match = 1
+	//				for i =0 to c1.itemset.size -2 :
+	//					if 	c1.itemset[i] == c2.itemset[i-1]:
+	//						continue
+	//					else:
+	//						match = 0
+	//						break
+	//				if match and (c11.itemset[i] is subset of c2.itemset[i])
+	//					final.push_back( merge of c1 c2)		
+	//			
+	//				
+	//else:
+	//	match = 1
+	//	for i =1 to c1.itemset.size -2 :
+	//		if 	c1.itemset[i] == c2.itemset[i-1]:
+	//			continue
+	//		else:
+	//			match = 0
+	//			break
+	//	if match and (c11.itemset[i] is subset of c2.itemset[i])
+	//		final.push_back(merge of c1 and c2)
 }
 
-int pruned(sequence c){
-//// to do ////////
+int pruned(sequence c,int k){
+	sequence temp;
+	//define equality operator for sequence object
+	//define remove item for sequence class
+	//define remove item for itemset class
+	//for loop on each itemset of c 
+	//	first and last itemset of c ignore the >2 size ow check if itemset size >2
+	//	remove each element of itemset one by one
+	//	check if the resulting sequence is contained in F[k-1]
+	//	if not return 1
+	//	else go on
+	//return 0 
 }
 
 vector<sequence> frequent1Seq(){
