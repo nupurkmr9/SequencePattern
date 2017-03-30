@@ -197,9 +197,7 @@ int check(sequence, int );
 int main(int argc, char const *argv[]){
 	readInput();
 	output(Data);
-	//int m = Data[7].subsequence(Data[1].itemsets);
-	//cout << m;
-	//cout << '\n';
+	
 	GSP();
 	cout << "output";
 	cout << '\n';
@@ -283,15 +281,10 @@ void GSP(){
 	//////// k frequent sequence while loop //////////////
 	int k = 2;
 	while( !F[k-2].empty() ){
-		// cout << k;
-		// cout << '\n';
 
 		//////////// generate candidate sequence of k length using F[k-2] ///////////// 
 		vector<sequence> C = generateCandidte(k);
 		vector<int> supportCount ( C.size(),0);
-
-		// cout << 'j';
-		// cout << '\n';
 
 		/////////// count the support of each candidate sequence ///////////////
 		if (!C.empty()){
@@ -306,8 +299,6 @@ void GSP(){
 			}
 		}
 
-		// cout << 'i';
-		// cout << '\n';
 		///////////// if count > minSupport keep it as frequent sequence //////////////////
 		vector<sequence> FK ;
 		int counter =0;
@@ -329,26 +320,16 @@ void GSP(){
 
 
 vector<sequence> generateCandidte(int k){
-	// cout << F[0].size();
-	// cout << '\n';
 
 	vector<sequence> candidates;
 	for ( vector<sequence>::iterator ii = F[k-2].begin() ; ii < F[k-2].end(); ii++ ){
 		for ( vector<sequence>::iterator tt = F[k-2].begin() ; tt < F[k-2].end(); tt++ ){
 			sequence candidate;
 			if (k==2){
-				// cout << F[0].size();
-				// cout << '\n';
 				sequence c = ii->copy();
-				// cout << 'l';
-				// cout << '\n';
 				c.addItemSet(tt->itemsets[0]);
-				// cout << 'm';
-				// cout << '\n';
 				if (!pruned(c,k))
 					candidates.push_back(c);
-				// cout << 'n';
-				// cout << '\n';
 				c = ii->copy();
 				c.addItem(tt->itemsets[0].items[0]);
 				if (!pruned(c,k))
@@ -449,21 +430,15 @@ int pruned(sequence c,int level){
 	vector<itemset> i = c.itemsets;
 	for ( int k=0; k< i.size(); k++ ){
 		if (k==0 || k == i.size()){
-			// cout << i[k].size;
-			// cout << '\n';
 			for (int l =0; l< i[k].size; l++){
 				sequence c1 = c.copy();
 				c1.remove(k,l);
 				if (!check(c1,level))
 					return 0;
-				// cout << 'm';
-				// cout << '\n';
 			}
 		}
 		else{
 			if (i[k].size > 1){
-				// cout << 'r';
-				// cout << '\n';
 				for (int l =0; l< i[k].size; l++){
 					sequence c1 = c.copy();
 					c1.remove(k,l);
