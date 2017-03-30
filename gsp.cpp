@@ -35,6 +35,50 @@ public:
 		}
 	}
 
+	int isEqual(itemset a){
+		for (int k=0; k< size; k++){
+			if (k >= a.size){
+				return 0;
+			}
+			else{
+				if (!(items[k] == a.items[k])){
+					return 0;
+				}
+			}
+		}
+		return 1;
+	}
+
+	void remove(int itemIndex){
+		items.erase (items.begin()+itemIndex);
+	}
+
+	itemset copy(){
+		itemset i;
+		for (int k=0;k<size;k++){
+			i.addItem(items[k]);
+		}
+		return i;
+	}
+
+	int isSubset(itemset ii){
+		int prev =0;
+		for (int i=0;i<ii.size;i++){
+			int j;
+			for (j=prev; j< size;j++){
+				if (ii.items[i] == items[j]){
+					prev = j+1;
+					break;
+				}
+				else
+					continue;
+			}
+			if (j>=size && i < ii.size )
+				return 0; 
+		}
+		return 1;
+	}
+
 };
 
 
@@ -46,8 +90,13 @@ public:
 
 	void addItemSet(itemset i ){
 		sort(i.items.begin(), i.items.end());
-		itemsets.push_back(i);
+		itemset p = i.copy();
+		itemsets.push_back(p);
 		size += 1;
+	}
+
+	void removeSet(){
+		itemsets.pop_back();
 	}
 
 	void addItem(int a){
@@ -67,31 +116,64 @@ public:
 		int index = 0;
 		for ( vector<itemset>::iterator it1 = i.begin() ; it1 < i.end(); it1++ ){
 			int k = index;
-			cout <<'m';
-			cout <<'\n';
+			// cout <<'m';
+			// cout <<'\n';
 			vector<int> A = it1->items;
-			while(k < itemsets.size()){
+			while(k < size){
 				vector<int> B = itemsets[k].items;
 				if ( includes(B.begin(), B.end(), A.begin(), A.end()) ) {
-					cout <<'j';
-					cout <<'\n';
+					// cout <<'j';
+					// cout <<'\n';
 					index = k+1;
 					break;
 				}
 				else{
-					cout <<'h';
-					cout <<'\n';
+					// cout <<'h';
+					// cout <<'\n';
 					k +=1;
 				}
 
 			}
-			if (k >= itemsets.size()){
-				cout << 'i';
-				cout << '\n';
+			if (k >= size){
+				// cout << 'i';
+				// cout << '\n';
 				return 0;
 			}
 		}
 		return 1;
+	}
+
+	int isEqual(sequence a){
+		int k=0;
+		for ( ; k< size; k++){
+			if (k>= a.size){
+				return 0;
+			}
+			else{
+				if (itemsets[k].isEqual(a.itemsets[k])){
+					continue;
+				}
+				else
+					return 0;
+			}
+		}
+		return 1;
+	}
+
+	void remove(int itemsetIndex, int itemIndex){
+		if (itemsets[itemsetIndex].size > 1)
+			itemsets[itemsetIndex].remove(itemIndex);
+		else
+			itemsets.erase (itemsets.begin()+itemsetIndex);
+	}
+
+	sequence copy(){
+		sequence c;
+		for ( vector<itemset>::iterator it1 = itemsets.begin() ; it1 < itemsets.end(); it1++ ){
+			itemset i = it1->copy();
+			c.addItemSet(i);
+		}
+		return c;
 	}
 
 };
@@ -109,7 +191,8 @@ void GSP();
 vector<sequence> generateCandidte(int);
 vector<sequence> frequent1Seq();
 int pruned(sequence,int);
-vector<sequence> join(sequence,sequence);
+sequence join(sequence,sequence);
+int check(sequence, int );
 
 int main(int argc, char const *argv[]){
 	readInput();
@@ -118,8 +201,10 @@ int main(int argc, char const *argv[]){
 	//cout << m;
 	//cout << '\n';
 	GSP();
-
+	cout << "output";
+	cout << '\n';
 	for (int k=0; k<F.size(); k++ ){
+		cout << "length";
 		cout << k;
 		cout << '\n';
 		output(F[k]);
@@ -197,13 +282,16 @@ void GSP(){
 	
 	//////// k frequent sequence while loop //////////////
 	int k = 2;
-	while( !F[k-1].empty() ){
-		// cout << 'k';
+	while( !F[k-2].empty() ){
+		// cout << k;
 		// cout << '\n';
 
-		//////////// generate candidate sequence of k length using F[k-1] ///////////// 
+		//////////// generate candidate sequence of k length using F[k-2] ///////////// 
 		vector<sequence> C = generateCandidte(k);
 		vector<int> supportCount ( C.size(),0);
+
+		// cout << 'j';
+		// cout << '\n';
 
 		/////////// count the support of each candidate sequence ///////////////
 		if (!C.empty()){
@@ -218,6 +306,8 @@ void GSP(){
 			}
 		}
 
+		// cout << 'i';
+		// cout << '\n';
 		///////////// if count > minSupport keep it as frequent sequence //////////////////
 		vector<sequence> FK ;
 		int counter =0;
@@ -239,63 +329,159 @@ void GSP(){
 
 
 vector<sequence> generateCandidte(int k){
+	// cout << F[0].size();
+	// cout << '\n';
+
 	vector<sequence> candidates;
-	for ( vector<sequence>::iterator ii = F[k-1].begin() ; ii < F[k-1].end(); ii++ ){
-		for ( vector<sequence>::iterator tt = F[k-1].begin() ; tt < F[k-1].end(); tt++ ){
-			vector<sequence> candidate = join(*ii,*tt);
-			if (candidate.size() > 0){
-				for ( vector<sequence>::iterator cc = candidate.begin() ; cc < candidate.end(); cc++ ){
-					if (!pruned(*cc,k)){
-						candidates.push_back(*cc);
-					}
-				}
+	for ( vector<sequence>::iterator ii = F[k-2].begin() ; ii < F[k-2].end(); ii++ ){
+		for ( vector<sequence>::iterator tt = F[k-2].begin() ; tt < F[k-2].end(); tt++ ){
+			sequence candidate;
+			if (k==2){
+				// cout << F[0].size();
+				// cout << '\n';
+				sequence c = ii->copy();
+				// cout << 'l';
+				// cout << '\n';
+				c.addItemSet(tt->itemsets[0]);
+				// cout << 'm';
+				// cout << '\n';
+				if (!pruned(c,k))
+					candidates.push_back(c);
+				// cout << 'n';
+				// cout << '\n';
+				c = ii->copy();
+				c.addItem(tt->itemsets[0].items[0]);
+				if (!pruned(c,k))
+					candidates.push_back(c);
+
+			}
+			else{
+				candidate = join(*ii,*tt);
+				if (!pruned(candidate,k))
+						candidates.push_back(candidate);
 			}
 		}
 	}
 	return candidates;
 }
 
-vector<sequence> join(sequence c1, sequence c2){
-	// final 
-	// temp c11 = c1
-	//if first itemset has >1 element of c11 :
-	//		for each item in c11.itemset[0]:
-	//			c11 = remove item from c11.itemset[0]: 
-	//				match = 1
-	//				for i =0 to c1.itemset.size -2 :
-	//					if 	c1.itemset[i] == c2.itemset[i-1]:
-	//						continue
-	//					else:
-	//						match = 0
-	//						break
-	//				if match and (c11.itemset[i] is subset of c2.itemset[i])
-	//					final.push_back( merge of c1 c2)		
-	//			
-	//				
-	//else:
-	//	match = 1
-	//	for i =1 to c1.itemset.size -2 :
-	//		if 	c1.itemset[i] == c2.itemset[i-1]:
-	//			continue
-	//		else:
-	//			match = 0
-	//			break
-	//	if match and (c11.itemset[i] is subset of c2.itemset[i])
-	//		final.push_back(merge of c1 and c2)
+sequence join(sequence c1, sequence c2){
+	sequence final;
+	if (c1.itemsets[0].size == 1 && c1.size == c2.size){
+		int k;
+		for (k=1 ; k< c1.size; k++ ){
+			if (c1.itemsets[k].isEqual(c2.itemsets[k-1]))
+				continue;
+			else{
+				return final;
+			}
+		}
+		sequence c = c1.copy();
+		c.addItemSet(c2.itemsets[k-1]);
+		return c;
+
+	}
+	else if (c1.itemsets[0].size == 1 && c1.size == c2.size+1){
+		int k;
+		for (k=1 ; k< c1.size-1; k++ ){
+			if (c1.itemsets[k].isEqual(c2.itemsets[k-1]))
+				continue;
+			else{
+				return final;
+			}
+		}
+		if (!(c1.itemsets[k].isSubset(c2.itemsets[k-1])))
+			return final;
+
+		sequence c = c1.copy();
+		c.removeSet();
+		c.addItemSet(c2.itemsets[k-1]);
+		return c;
+
+	}
+	else if (c1.itemsets[0].size > 1 && c1.size == c2.size){
+		if (c2.itemsets[0].isSubset(c1.itemsets[0]) && c1.itemsets[0].size +1 == c2.itemsets[0].size ){
+			int k;
+			for (k=1 ; k< c1.size-1; k++ ){
+				if (c1.itemsets[k].isEqual(c2.itemsets[k]))
+					continue;
+				else{
+					return final;
+				}
+			if (!(c1.itemsets[k].isSubset(c2.itemsets[k])))
+				return final;
+			}
+			sequence c = c1.copy();
+			c.removeSet();
+			c.addItemSet(c2.itemsets[k]);
+			return c;
+		}
+		else
+			return final;
+
+	}
+	else if (c1.itemsets[0].size > 1 && c1.size+1 == c2.size){
+		if (c2.itemsets[0].isSubset(c1.itemsets[0]) && c1.itemsets[0].size +1 == c2.itemsets[0].size ){
+			int k;
+			for (k=1 ; k< c1.size; k++ ){
+				if (c1.itemsets[k].isEqual(c2.itemsets[k]))
+					continue;
+				else{
+					return final;
+				}
+			if (!(c1.itemsets[k].isSubset(c2.itemsets[k])))
+				return final;
+			}
+			sequence c = c1.copy();
+			c.addItemSet(c2.itemsets[k]);
+			return c;
+		}
+		else
+			return final;
+
+	}
+	else 
+		return final;
 }
 
-int pruned(sequence c,int k){
-	sequence temp;
-	//define equality operator for sequence object
-	//define remove item for sequence class
-	//define remove item for itemset class
-	//for loop on each itemset of c 
-	//	first and last itemset of c ignore the >2 size ow check if itemset size >2
-	//	remove each element of itemset one by one
-	//	check if the resulting sequence is contained in F[k-1]
-	//	if not return 1
-	//	else go on
-	//return 0 
+int pruned(sequence c,int level){
+
+	vector<itemset> i = c.itemsets;
+	for ( int k=0; k< i.size(); k++ ){
+		if (k==0 || k == i.size()){
+			// cout << i[k].size;
+			// cout << '\n';
+			for (int l =0; l< i[k].size; l++){
+				sequence c1 = c.copy();
+				c1.remove(k,l);
+				if (!check(c1,level))
+					return 0;
+				// cout << 'm';
+				// cout << '\n';
+			}
+		}
+		else{
+			if (i[k].size > 1){
+				// cout << 'r';
+				// cout << '\n';
+				for (int l =0; l< i[k].size; l++){
+					sequence c1 = c.copy();
+					c1.remove(k,l);
+					if (!check(c1,level))
+						return 0;
+				}
+			}
+		}
+	}
+	return 1;
+}
+
+int check(sequence c, int level){
+	for ( vector<sequence>::iterator ii = F[level-2].begin() ; ii < F[level-2].end(); ii++ ){
+		if (!(ii->isEqual(c)))
+			return 0;
+	}
+	return 1;
 }
 
 vector<sequence> frequent1Seq(){
